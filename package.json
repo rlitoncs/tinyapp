@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/rlitoncs/tinyapp/issues"
   },
-  "homepage": "https://github.com/rlitoncs/tinyapp#readme"
+  "homepage": "https://github.com/rlitoncs/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
 }
