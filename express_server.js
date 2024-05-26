@@ -3,7 +3,7 @@ const app = express();
 const PORT = 8000;
 
 function generateRandomString() {
-  const random_short_url = Math.random().toString().slice(2, 8);
+  const random_short_url = Math.random().toString(20).slice(2, 8);
   return random_short_url;
 }
 
@@ -39,3 +39,4 @@ app.get("/urls/:id", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
