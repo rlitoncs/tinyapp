@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const PORT = 8000;
 
+function generateRandomString() {}
+
 app.set("view engine", "ejs");
 
 const urlDatabase = {
