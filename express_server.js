@@ -22,9 +22,9 @@ app.get("/urls", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  const shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL; //save to the url database
-  res.redirect(`/urls/${shortURL}`);
+  const short_url_id = generateRandomString();
+  urlDatabase[short_url_id] = req.body.longURL; //save to the url database
+  res.redirect(`/urls/${short_url_id}`);
 });
 
 app.get("/urls/new", (req, res) => {
@@ -39,6 +39,12 @@ app.get("/urls/:id", (req, res) => {
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
+});
+
+app.post("/urls/:id/delete", (req, res) => {
+  const short_url_id = req.params.id;
+  delete urlDatabase[short_url_id];
+  res.redirect("/urls");
 });
 
 
