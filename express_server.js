@@ -2,7 +2,10 @@ const express = require("express");
 const app = express();
 const PORT = 8000;
 
-function generateRandomString() {}
+function generateRandomString() {
+  const random_short_url = Math.random().toString().slice(2, 8);
+  return random_short_url;
+}
 
 app.set("view engine", "ejs");
 
