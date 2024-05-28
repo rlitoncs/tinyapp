@@ -16,6 +16,18 @@ const users = {
   },
 };
 
+function findUserByEmail(email) {
+  for (let userID in users) {
+    // return userID if found
+    if (users[userID].email === email){
+      return userID;
+    } else {
+      //return null if no user is found
+      return null;
+    }
+  }
+}
+
 function generateRandomString() {
   const random_short_url = Math.random().toString(20).slice(2, 8);
   return random_short_url;
@@ -80,7 +92,7 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 //=========================================================================
-// LOGIN/LOGOUT
+// LOGIN/LOGOUT **
 
 app.post("/login", (req,res) => {
   res.cookie("username", req.body.username)
@@ -99,6 +111,21 @@ app.get("/register", (req,res) => {
 })
 
 app.post("/register", (req, res) => {
+  //error handling
+  //a) empty email or password
+  if (req.body.email.length === 0 || req.body.password.length === 0){
+    res.status(400);
+    return res.send('404 Bad Request. Please provide a valid email and password');
+  }
+  //b) email already exists
+  const user = findUserByEmail(req.body.email);
+  if (user !== null){
+    res.status(400);
+    return res.send('404 Bad Request. Email already exists');
+  }
+  //==============================================================================
+  //New Users
+  
   //create random userID
   const userID = generateRandomString();
   //add user
@@ -107,6 +134,7 @@ app.post("/register", (req, res) => {
   //set userID cookie
   res.cookie("user_id", userID);
 
+  // console.log(users);
   res.redirect("/urls");
 })
 
