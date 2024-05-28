@@ -3,6 +3,19 @@ var cookieParser = require('cookie-parser')
 const app = express();
 const PORT = 8000;
 
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
+
 function generateRandomString() {
   const random_short_url = Math.random().toString(20).slice(2, 8);
   return random_short_url;
@@ -21,7 +34,8 @@ app.use(cookieParser())
 app.get("/urls", (req, res) => {
   const templateVars = { 
     urls: urlDatabase,
-    username: req.cookies["username"]
+    allUsers: users,
+    userID: req.cookies["user_id"]
    };
   res.render("urls_index", templateVars);
 });
@@ -34,7 +48,8 @@ app.post("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const templateVars = { 
-    username: req.cookies["username"]
+    allUsers: users,
+    userID: req.cookies["user_id"]
    };
   res.render("urls_new", templateVars);
 });
@@ -43,7 +58,7 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = { 
     id: req.params.id, 
     longURL: urlDatabase[req.params.id],
-    username: req.cookies["username"]
+    userID: req.cookies["user_id"]
   };
   res.render("urls_show", templateVars);
 });
@@ -64,6 +79,9 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect("/urls");
 });
 
+//=========================================================================
+// LOGIN/LOGOUT
+
 app.post("/login", (req,res) => {
   res.cookie("username", req.body.username)
   res.redirect("/urls");
@@ -74,9 +92,25 @@ app.post("/logout", (req,res) => {
   res.redirect("/urls");
 })
 
+//=========================================================================
+//REGISTER
 app.get("/register", (req,res) => {
   res.render("register")
 })
+
+app.post("/register", (req, res) => {
+  //create random userID
+  const userID = generateRandomString();
+  //add user
+  users[userID] = {id: userID, email: req.body.email, password: req.body.password};
+
+  //set userID cookie
+  res.cookie("user_id", userID);
+
+  res.redirect("/urls");
+})
+
+//=========================================================================
 
 
 app.listen(PORT, () => {
