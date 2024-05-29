@@ -3,6 +3,11 @@ var cookieParser = require('cookie-parser')
 const app = express();
 const PORT = 8000;
 
+const urlDatabase = {
+  b2xVn2: "http://www.lighthouselabs.ca",
+  "9sm5xK": "http://www.google.com",
+};
+
 const users = {
   userRandomID: {
     id: "userRandomID",
@@ -16,7 +21,7 @@ const users = {
   },
 };
 
-function findUserByEmail(email) {
+const findUserByEmail = (email) => {
   for (let userID in users) {
     // return userID if found
     if (users[userID].email === email){
@@ -28,27 +33,26 @@ function findUserByEmail(email) {
   }
 }
 
-function generateRandomString() {
-  const random_short_url = Math.random().toString(20).slice(2, 8);
+const generateRandomString = () => {
+  const random_short_url = Math.random().toString(36).slice(2, 8);
   return random_short_url;
 }
 
 app.set("view engine", "ejs");
 
-const urlDatabase = {
-  b2xVn2: "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
-};
-
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser())
+app.use(express.urlencoded({ extended: true })); // create and populate req.body
+app.use(cookieParser()) // creates and populates req.cookies
 
 app.get("/urls", (req, res) => {
+
+  //get userID by accessing cookie
+  const userID = req.cookies["user_id"];
+
   const templateVars = { 
     urls: urlDatabase,
-    allUsers: users,
-    userID: req.cookies["user_id"]
+    user: users[userID],
    };
+
   res.render("urls_index", templateVars);
 });
 
@@ -59,19 +63,27 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
+
+   //get userID by accessing cookie
+  const userID = req.cookies["user_id"];
+
   const templateVars = { 
-    allUsers: users,
-    userID: req.cookies["user_id"]
+    urls: urlDatabase,
+    user: users[userID],
    };
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
+
+  //get userID by accessing cookie
+  const userID = req.cookies["user_id"];
+
   const templateVars = { 
     id: req.params.id, 
     longURL: urlDatabase[req.params.id],
-    userID: req.cookies["user_id"]
-  };
+    user: users[userID],
+   };
   res.render("urls_show", templateVars);
 });
 
@@ -95,12 +107,31 @@ app.post("/urls/:id/delete", (req, res) => {
 // LOGIN/LOGOUT **
 
 app.post("/login", (req,res) => {
-  res.cookie("username", req.body.username)
+  const userEmail = req.body.email;
+  const userPassword = req.body.password;
+  const userID = findUserByEmail(userEmail); //finds userID based on userEmail
+
+  //Error Handling
+
+  //a) Empty email or password
+  if (!userEmail || !userPassword){
+    return res.status(404).send('Please provide a valid email address and password');
+  }
+
+  //b)
+  if (!users[userID]){
+    return res.status(404).send('Email does not exist');
+  } else if (users[userID].password !== userPassword){
+    return res.status(401).send('The password does not match!');
+  }
+
+  //Happy Path (user is in database)
+  res.cookie("user_id", userID);
   res.redirect("/urls");
 })
 
 app.post("/logout", (req,res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect("/urls");
 })
 
@@ -111,25 +142,30 @@ app.get("/register", (req,res) => {
 })
 
 app.post("/register", (req, res) => {
+  const userEmail = req.body.email;
+  const userPassword = req.body.password;
+  
   //error handling
   //a) empty email or password
-  if (req.body.email.length === 0 || req.body.password.length === 0){
-    res.status(400);
-    return res.send('404 Bad Request. Please provide a valid email and password');
+  if (!userEmail || !userPassword){
+    return res.status(400).send('404 Bad Request. Please provide a valid email and password');
   }
   //b) email already exists
-  const user = findUserByEmail(req.body.email);
-  if (user !== null){
-    res.status(400);
-    return res.send('404 Bad Request. Email already exists');
+  const user = findUserByEmail(userEmail);
+  if (user){
+    return res.status(400).send('404 Bad Request. Email already exists');
   }
   //==============================================================================
-  //New Users
+  //Register New Users (Happy Path)
   
   //create random userID
   const userID = generateRandomString();
   //add user
-  users[userID] = {id: userID, email: req.body.email, password: req.body.password};
+  users[userID] = {
+    id: userID, 
+    email: userEmail, 
+    password: userPassword
+  };
 
   //set userID cookie
   res.cookie("user_id", userID);
