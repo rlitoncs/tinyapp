@@ -105,6 +105,11 @@ app.post("/urls/:id/delete", (req, res) => {
 
 //=========================================================================
 // LOGIN/LOGOUT **
+app.get('/login', (req,res) => {
+
+  res.render("login");
+})
+
 
 app.post("/login", (req,res) => {
   const userEmail = req.body.email;
