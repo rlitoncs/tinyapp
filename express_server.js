@@ -148,7 +148,15 @@ app.post("/logout", (req,res) => {
 //=========================================================================
 //REGISTER
 app.get("/register", (req,res) => {
-  res.render("register")
+
+  //get userID by accessing cookie
+  const userID = req.cookies["user_id"];
+  
+  const templateVars = { 
+    urls: urlDatabase,
+    user: users[userID],
+    };
+  res.render("register", templateVars);
 })
 
 app.post("/register", (req, res) => {
