@@ -26,7 +26,25 @@ const users = {
     email: "user2@example.com",
     password: "dishwasher-funk",
   },
+  aJ48lW: {
+    id: "aJ48lW",
+    email: "a@example.com",
+    password: "123",
+  },
 };
+
+const urlsForUser = (id) => {
+  const userURLS = {};
+
+  for (let shortID in urlDatabase){
+    if (urlDatabase[shortID].userID === id){
+      userURLS[shortID] = urlDatabase[shortID];
+    }
+  }
+
+  console.log(userURLS);
+  return userURLS;
+}
 
 const findUserByEmail = (email) => {
   for (let userID in users) {
@@ -54,12 +72,19 @@ app.get("/urls", (req, res) => {
   //get userID by accessing cookie
   const userID = req.cookies["user_id"];
 
+  const getUserURLS = urlsForUser(userID);
+
   const templateVars = { 
-    urls: urlDatabase,
+    urls: getUserURLS,
     user: users[userID],
    };
 
-  res.render("urls_index", templateVars);
+  if (userID){
+    res.render("urls_index", templateVars);
+    
+  }else {
+    return res.status(401).send("401 Unauthorized. Please Login or Register")
+  }
 });
 
 app.post("/urls", (req, res) => { 
@@ -117,7 +142,7 @@ app.post("/urls/:id", (req,res) => {
 });
 
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id];
+  const longURL = urlDatabase[req.params.id].longURL;
 
   //Ensure short url exists in database
   if (longURL){
