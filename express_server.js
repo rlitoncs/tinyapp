@@ -138,7 +138,7 @@ app.get("/urls/:id", (req, res) => {
 
   // users URLS can only access their own URLS
   if (!(getUserURLS[req.params.id])){
-    return res.status(400).send("400 Bad Request. You do not own that url");
+    return res.status(400).send("400 Bad Request. You are trying to access a URL you do not yet own");
   }
 
   const templateVars = { 
@@ -160,22 +160,25 @@ app.post("/urls/:id", (req,res) => {
   if (!userID){
     return res.status(401).send("401 Unauthorized to edit. Please Login")
   }
+  
+  // Error: editing a user's URL it doesn't own
   if (!(getUserURLS[req.params.id])){
     return res.status(404).send(`404 Not Found. ${short_url_id} does not exist `)
   }
 
-  getUserURLS[short_url_id].longURL = req.body.longURL;
+  getUserURLS[req.params.id].longURL = req.body.longURL;
   res.redirect("/urls");
 });
 
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id].longURL;
-
-  //Error Handling: Ensure short url exists in database
-  if (!longURL){
+  
+   //Error Handling: Ensure short url exists in database
+   if (!urlDatabase[req.params.id]){
     return res.status(404).send("404 Not Found. Short URL does not exist")
   }
-  
+
+  const longURL = urlDatabase[req.params.id].longURL;
+
   res.redirect(longURL);
 
 });
