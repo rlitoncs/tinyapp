@@ -19,26 +19,17 @@
       </div>
     </div>
     <div>
-        <% if (user) { %>
+      <a href="/login">Login</a>
+      <a href="/register">Register</a>
+
+      <% if (user) { %>
           <form method="POST" action="/logout">
             <span>Logged in as: <%= user.email %></span>
             <button type="submit"  class="btn btn-outline-dark">Logout</button>
           </form>
 
-        <% } else { %>
-          <form method="POST" action="/login">
-            <input 
-            name="email"
-            placeholder="Email Address"/>
-
-            <input
-            name="password"
-            type="password"
-            placeholder="Password"/>
-
-            <button type="submit"  class="btn btn-outline-dark">Login</button> 
-          </form>
-        <% }%>  
+      <% } %>
+      
           
   
   </div>
