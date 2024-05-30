@@ -55,7 +55,15 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-app.post("/urls", (req, res) => {
+app.post("/urls", (req, res) => { 
+  //get userID by accessing cookie
+  const userID = req.cookies["user_id"];
+
+  //Users not logged in cannot shorten URLs (using curl command)
+  if(!userID){
+    return res.status(404).send("You must login to shorten URLs");
+  }
+  
   const short_url_id = generateRandomString();
   urlDatabase[short_url_id] = req.body.longURL; //save to the url database
   res.redirect(`/urls/${short_url_id}`);
@@ -69,8 +77,15 @@ app.get("/urls/new", (req, res) => {
   const templateVars = { 
     urls: urlDatabase,
     user: users[userID],
-   };
-  res.render("urls_new", templateVars);
+  };
+
+  //User has to be logged in create new short URLs
+  if (userID){
+    res.render("urls_new", templateVars);
+  } else {
+    res.redirect("/login")
+  }
+
 });
 
 app.get("/urls/:id", (req, res) => {
@@ -93,7 +108,14 @@ app.post("/urls/:id", (req,res) => {
 
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
-  res.redirect(longURL);
+
+  //Ensure short url exists in database
+  if (longURL){
+    res.redirect(longURL);
+  } else {
+    return res.status(404).send("404 Not Found. Short URL does not exist")
+  }
+
 });
 
 app.post("/urls/:id/delete", (req, res) => {
@@ -111,8 +133,13 @@ app.get('/login', (req,res) => {
   const templateVars = { 
     urls: urlDatabase,
     user: users[userID],
-    };
-  res.render("login", templateVars);
+  };
+  
+  if (userID) {
+    res.redirect("/urls")
+  } else {
+    res.render("login", templateVars);
+  }
 })
 
 
@@ -155,8 +182,14 @@ app.get("/register", (req,res) => {
   const templateVars = { 
     urls: urlDatabase,
     user: users[userID],
-    };
-  res.render("register", templateVars);
+  };
+
+  if (userID) {
+    res.redirect("/urls")
+  } else {
+    res.render("register", templateVars);
+  }
+
 })
 
 app.post("/register", (req, res) => {
