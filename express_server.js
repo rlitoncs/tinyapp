@@ -112,7 +112,7 @@ app.get("/urls/:id", (req, res) => {
 });
 
 app.post("/urls/:id", (req,res) => {
-  urlDatabase[req.params.id] = req.body.longURL;
+  urlDatabase[req.params.id].longURL = req.body.longURL;
   res.redirect("/urls");
 });
 
