@@ -26,11 +26,10 @@ const findUserByEmail = (email) => {
     // return userID if found
     if (users[userID].email === email){
       return userID;
-    } else {
-      //return null if no user is found
-      return null;
     }
   }
+  //return null if no user is found
+  return null;
 }
 
 const generateRandomString = () => {
