@@ -72,7 +72,10 @@ app.post("/urls", (req, res) => {
   }
   
   const short_url_id = generateRandomString();
-  urlDatabase[short_url_id] = req.body.longURL; //save to the url database
+  urlDatabase[short_url_id] = {
+    longURL: req.body.longURL, //save to the url database
+    userID: userID
+  };
   res.redirect(`/urls/${short_url_id}`);
 });
 
@@ -102,7 +105,7 @@ app.get("/urls/:id", (req, res) => {
 
   const templateVars = { 
     id: req.params.id, 
-    longURL: urlDatabase[req.params.id],
+    longURL: urlDatabase[req.params.id].longURL,
     user: users[userID],
    };
   res.render("urls_show", templateVars);
