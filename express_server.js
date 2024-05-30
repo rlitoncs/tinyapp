@@ -152,7 +152,19 @@ app.get("/urls/:id", (req, res) => {
 });
 
 app.post("/urls/:id", (req,res) => {
-  urlDatabase[req.params.id].longURL = req.body.longURL;
+  //get userID by accessing cookie
+  const userID = req.cookies["user_id"];
+  const getUserURLS = urlsForUser(userID);
+
+  //Error Handling
+  if (!userID){
+    return res.status(401).send("401 Unauthorized to edit. Please Login")
+  }
+  if (!(getUserURLS[req.params.id])){
+    return res.status(404).send(`404 Not Found. ${short_url_id} does not exist `)
+  }
+
+  getUserURLS[short_url_id].longURL = req.body.longURL;
   res.redirect("/urls");
 });
 
@@ -169,9 +181,23 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.post("/urls/:id/delete", (req, res) => {
+  const userID = req.cookies["user_id"];
+  const getUserURLS = urlsForUser(userID);
   const short_url_id = req.params.id;
+
+  //Error Handling
+  if (!userID){
+    return res.status(401).send("401 Unauthorized to delete. Please Login")
+  }
+  if (!(getUserURLS[short_url_id])){
+    return res.status(404).send(`404 Not Found. ${short_url_id} does not exist `)
+  }
+
+
   delete urlDatabase[short_url_id];
   res.redirect("/urls");
+  
+
 });
 
 //=========================================================================
