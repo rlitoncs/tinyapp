@@ -105,8 +105,14 @@ app.post("/urls/:id/delete", (req, res) => {
 //=========================================================================
 // LOGIN/LOGOUT **
 app.get('/login', (req,res) => {
+  //get userID by accessing cookie
+  const userID = req.cookies["user_id"];
 
-  res.render("login");
+  const templateVars = { 
+    urls: urlDatabase,
+    user: users[userID],
+    };
+  res.render("login", templateVars);
 })
 
 
