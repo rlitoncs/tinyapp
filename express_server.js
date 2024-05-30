@@ -151,7 +151,7 @@ app.get("/register", (req,res) => {
 
   //get userID by accessing cookie
   const userID = req.cookies["user_id"];
-  
+
   const templateVars = { 
     urls: urlDatabase,
     user: users[userID],
@@ -171,7 +171,7 @@ app.post("/register", (req, res) => {
   //b) email already exists
   const user = findUserByEmail(userEmail);
   if (user){
-    return res.status(400).send('400 Bad Request. Email already exists');
+    return res.status(400).send('400 Bad Request. Email has already been registered');
   }
   //==============================================================================
   //Register New Users (Happy Path)
