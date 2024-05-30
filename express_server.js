@@ -132,7 +132,7 @@ app.post("/login", (req,res) => {
   if (!users[userID]){
     return res.status(403).send('403 Forbidden. Email does not exist');
   } else if (users[userID].password !== userPassword){
-    return res.status(403).send('403 Forbidden. The password does not match!');
+    return res.status(403).send('403 Forbidden. Incorrect Password.');
   }
 
   //Happy Path (user is in database)
