@@ -119,14 +119,14 @@ app.post("/login", (req,res) => {
 
   //a) Empty email or password
   if (!userEmail || !userPassword){
-    return res.status(404).send('Please provide a valid email address and password');
+    return res.status(404).send('404 Not Found. Please provide a valid email address and password');
   }
 
   //b)
   if (!users[userID]){
-    return res.status(404).send('Email does not exist');
+    return res.status(403).send('403 Forbidden. Email does not exist');
   } else if (users[userID].password !== userPassword){
-    return res.status(401).send('The password does not match!');
+    return res.status(403).send('403 Forbidden. The password does not match!');
   }
 
   //Happy Path (user is in database)
@@ -136,7 +136,7 @@ app.post("/login", (req,res) => {
 
 app.post("/logout", (req,res) => {
   res.clearCookie("user_id");
-  res.redirect("/urls");
+  res.redirect("/login");
 })
 
 //=========================================================================
@@ -152,12 +152,12 @@ app.post("/register", (req, res) => {
   //error handling
   //a) empty email or password
   if (!userEmail || !userPassword){
-    return res.status(400).send('404 Bad Request. Please provide a valid email and password');
+    return res.status(400).send('400 Bad Request. Please provide a valid email and password');
   }
   //b) email already exists
   const user = findUserByEmail(userEmail);
   if (user){
-    return res.status(400).send('404 Bad Request. Email already exists');
+    return res.status(400).send('400 Bad Request. Email already exists');
   }
   //==============================================================================
   //Register New Users (Happy Path)
