@@ -72,26 +72,26 @@ app.get("/urls", (req, res) => {
   //get userID by accessing cookie
   const userID = req.cookies["user_id"];
 
-  const getUserURLS = urlsForUser(userID);
+  //error handling
+  if (!userID){
+    return res.status(401).send("401 Unauthorized. Please Login or Register")
+  }
 
+  const getUserURLS = urlsForUser(userID);
   const templateVars = { 
     urls: getUserURLS,
     user: users[userID],
    };
 
-  if (userID){
-    res.render("urls_index", templateVars);
+  res.render("urls_index", templateVars);
     
-  }else {
-    return res.status(401).send("401 Unauthorized. Please Login or Register")
-  }
 });
 
 app.post("/urls", (req, res) => { 
   //get userID by accessing cookie
   const userID = req.cookies["user_id"];
 
-  //Users not logged in cannot shorten URLs (using curl command)
+  //Error Handling: Users not logged in cannot shorten URLs (using curl command)
   if(!userID){
     return res.status(404).send("You must login to shorten URLs");
   }
@@ -101,7 +101,9 @@ app.post("/urls", (req, res) => {
     longURL: req.body.longURL, //save to the url database
     userID: userID
   };
+
   res.redirect(`/urls/${short_url_id}`);
+
 });
 
 app.get("/urls/new", (req, res) => {
@@ -109,17 +111,17 @@ app.get("/urls/new", (req, res) => {
    //get userID by accessing cookie
   const userID = req.cookies["user_id"];
 
+  //User has to be logged in create new short URLs
+  if(!userID){
+    return res.redirect("/login")
+  }
+
   const templateVars = { 
     urls: urlDatabase,
     user: users[userID],
   };
 
-  //User has to be logged in create new short URLs
-  if (userID){
-    res.render("urls_new", templateVars);
-  } else {
-    res.redirect("/login")
-  }
+  res.render("urls_new", templateVars);  
 
 });
 
@@ -127,13 +129,26 @@ app.get("/urls/:id", (req, res) => {
 
   //get userID by accessing cookie
   const userID = req.cookies["user_id"];
+  const getUserURLS = urlsForUser(userID);
+
+  // User needs to login to access URLS
+  if (!userID){
+    return res.status(401).send("401 Unauthorized. Please Login to access URLS")
+  }
+
+  // users URLS can only access their own URLS
+  if (!(getUserURLS[req.params.id])){
+    return res.status(400).send("400 Bad Request. You do not own that url");
+  }
 
   const templateVars = { 
     id: req.params.id, 
-    longURL: urlDatabase[req.params.id].longURL,
+    longURL: getUserURLS[req.params.id].longURL,
     user: users[userID],
    };
+
   res.render("urls_show", templateVars);
+
 });
 
 app.post("/urls/:id", (req,res) => {
@@ -144,12 +159,12 @@ app.post("/urls/:id", (req,res) => {
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id].longURL;
 
-  //Ensure short url exists in database
-  if (longURL){
-    res.redirect(longURL);
-  } else {
+  //Error Handling: Ensure short url exists in database
+  if (!longURL){
     return res.status(404).send("404 Not Found. Short URL does not exist")
   }
+  
+  res.redirect(longURL);
 
 });
 
@@ -164,7 +179,7 @@ app.post("/urls/:id/delete", (req, res) => {
 app.get('/login', (req,res) => {
   //get userID by accessing cookie
   const userID = req.cookies["user_id"];
-
+  
   const templateVars = { 
     urls: urlDatabase,
     user: users[userID],
