@@ -19,8 +19,6 @@
       </div>
     </div>
     <div>
-      <a href="/login">Login</a>
-      <a href="/register">Register</a>
 
       <% if (user) { %>
           <form method="POST" action="/logout">
@@ -28,8 +26,10 @@
             <button type="submit"  class="btn btn-outline-dark">Logout</button>
           </form>
 
+      <% } else { %>
+          <a href="/login">Login</a>
+          <a href="/register">Register</a>
       <% } %>
-      
           
   
   </div>
