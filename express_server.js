@@ -1,5 +1,6 @@
 const express = require("express");
-var cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
+const bcrypt = require('bcryptjs');
 const app = express();
 const PORT = 8000;
 
@@ -19,17 +20,17 @@ const users = {
   userRandomID: {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur",
+    password: bcrypt.hashSync("purple-monkey-dinosaur", 10)
   },
   user2RandomID: {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk",
+    password: bcrypt.hashSync("dishwasher-funk", 10)
   },
   aJ48lW: {
     id: "aJ48lW",
     email: "a@example.com",
-    password: "123",
+    password: bcrypt.hashSync("123", 10)
   },
 };
 
@@ -237,7 +238,7 @@ app.post("/login", (req,res) => {
   //b)
   if (!users[userID]){
     return res.status(403).send('403 Forbidden. Email does not exist');
-  } else if (users[userID].password !== userPassword){
+  } else if (!bcrypt.compareSync(userPassword, users[userID].password)){
     return res.status(403).send('403 Forbidden. Incorrect Password.');
   }
 
@@ -274,7 +275,8 @@ app.get("/register", (req,res) => {
 app.post("/register", (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
-  
+  const hashedPassword = bcrypt.hashSync(userPassword, 10);
+ 
   //error handling
   //a) empty email or password
   if (!userEmail || !userPassword){
@@ -287,16 +289,16 @@ app.post("/register", (req, res) => {
   }
   //==============================================================================
   //Register New Users (Happy Path)
-  
+
   //create random userID
   const userID = generateRandomString();
   //add user
   users[userID] = {
     id: userID, 
     email: userEmail, 
-    password: userPassword
+    password: hashedPassword
   };
-
+  console.log(users)
   //set userID cookie
   res.cookie("user_id", userID);
 
