@@ -9,4 +9,4 @@ const findUserByEmail = (email, database) => {
   return null;
 }
 
-module.exports = findUserByEmail;
+module.exports = { findUserByEmail };
