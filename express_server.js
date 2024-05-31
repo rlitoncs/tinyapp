@@ -1,6 +1,7 @@
 const express = require("express");
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
+const findUserByEmail = require('./helpers');
 const app = express();
 const PORT = 8000;
 
@@ -45,17 +46,6 @@ const urlsForUser = (id) => {
 
   console.log(userURLS);
   return userURLS;
-}
-
-const findUserByEmail = (email) => {
-  for (let userID in users) {
-    // return userID if found
-    if (users[userID].email === email){
-      return userID;
-    }
-  }
-  //return null if no user is found
-  return null;
 }
 
 const generateRandomString = () => {
@@ -232,7 +222,7 @@ app.get('/login', (req,res) => {
 app.post("/login", (req,res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
-  const userID = findUserByEmail(userEmail); //finds userID based on userEmail
+  const userID = findUserByEmail(userEmail, users); //finds userID based on userEmail
 
   //Error Handling
 
@@ -289,7 +279,7 @@ app.post("/register", (req, res) => {
     return res.status(400).send('400 Bad Request. Please provide a valid email and password');
   }
   //b) email already exists
-  const user = findUserByEmail(userEmail);
+  const user = findUserByEmail(userEmail, users);
   if (user){
     return res.status(400).send('400 Bad Request. Email has already been registered');
   }
