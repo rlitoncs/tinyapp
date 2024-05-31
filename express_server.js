@@ -1,5 +1,5 @@
 const express = require("express");
-const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
 const app = express();
 const PORT = 8000;
@@ -66,12 +66,17 @@ const generateRandomString = () => {
 app.set("view engine", "ejs");
 
 app.use(express.urlencoded({ extended: true })); // create and populate req.body
-app.use(cookieParser()) // creates and populates req.cookies
+
+app.use(cookieSession({
+  name: 'tinyAppSession',
+  keys:['key'],
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}));
 
 app.get("/urls", (req, res) => {
 
   //get userID by accessing cookie
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
 
   //error handling
   if (!userID){
@@ -90,7 +95,7 @@ app.get("/urls", (req, res) => {
 
 app.post("/urls", (req, res) => { 
   //get userID by accessing cookie
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
 
   //Error Handling: Users not logged in cannot shorten URLs (using curl command)
   if(!userID){
@@ -110,7 +115,7 @@ app.post("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
 
    //get userID by accessing cookie
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
 
   //User has to be logged in create new short URLs
   if(!userID){
@@ -129,7 +134,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
 
   //get userID by accessing cookie
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
   const getUserURLS = urlsForUser(userID);
 
   // User needs to login to access URLS
@@ -154,7 +159,7 @@ app.get("/urls/:id", (req, res) => {
 
 app.post("/urls/:id", (req,res) => {
   //get userID by accessing cookie
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
   const getUserURLS = urlsForUser(userID);
 
   //Error Handling
@@ -185,7 +190,8 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.post("/urls/:id/delete", (req, res) => {
-  const userID = req.cookies["user_id"];
+  
+  const userID = req.session.user_id;
   const getUserURLS = urlsForUser(userID);
   const short_url_id = req.params.id;
 
@@ -208,7 +214,7 @@ app.post("/urls/:id/delete", (req, res) => {
 // LOGIN/LOGOUT **
 app.get('/login', (req,res) => {
   //get userID by accessing cookie
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
   
   const templateVars = { 
     urls: urlDatabase,
@@ -243,12 +249,12 @@ app.post("/login", (req,res) => {
   }
 
   //Happy Path (user is in database)
-  res.cookie("user_id", userID);
+  req.session.user_id = userID;
   res.redirect("/urls");
 })
 
 app.post("/logout", (req,res) => {
-  res.clearCookie("user_id");
+  req.session = null;
   res.redirect("/login");
 })
 
@@ -257,7 +263,7 @@ app.post("/logout", (req,res) => {
 app.get("/register", (req,res) => {
 
   //get userID by accessing cookie
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
 
   const templateVars = { 
     urls: urlDatabase,
@@ -300,7 +306,7 @@ app.post("/register", (req, res) => {
   };
   console.log(users)
   //set userID cookie
-  res.cookie("user_id", userID);
+  req.session.user_id = userID;
 
   // console.log(users);
   res.redirect("/urls");
