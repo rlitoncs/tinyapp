@@ -56,6 +56,7 @@ const generateRandomString = () => {
 app.set("view engine", "ejs");
 
 app.use(express.urlencoded({ extended: true })); // create and populate req.body
+app.use(express.json());
 
 app.use(cookieSession({
   name: 'tinyAppSession',
