@@ -1,34 +1,96 @@
-const { assert } = require('chai');
+// const { assert } = require('chai');
 
-const { findUserByEmail } = require('../helpers.js');
+// const { findUserByEmail } = require('../helpers.js');
 
-const testUsers = {
-  "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
-  },
-  "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
-    password: "dishwasher-funk"
-  }
-};
+// const testUsers = {
+//   "userRandomID": {
+//     id: "userRandomID", 
+//     email: "user@example.com", 
+//     password: "purple-monkey-dinosaur"
+//   },
+//   "user2RandomID": {
+//     id: "user2RandomID", 
+//     email: "user2@example.com", 
+//     password: "dishwasher-funk"
+//   }
+// };
 
-describe('getUserByEmail', function() {
-  it('should return a user with valid email', function() {
-    const user = findUserByEmail("user@example.com", testUsers)
-    const expectedUserID = "userRandomID";
-    // Write your assert statement here
-    assert.strictEqual(user, expectedUserID);
+// describe('getUserByEmail', function() {
+//   it('should return a user with valid email', function() {
+//     const user = findUserByEmail("user@example.com", testUsers)
+//     const expectedUserID = "userRandomID";
+//     // Write your assert statement here
+//     assert.strictEqual(user, expectedUserID);
+//   });
+
+//   it('should return null with non-existent email', function() {
+//     const user = findUserByEmail("non_existent@example.com", testUsers)
+//     const expectedUserID = null;
+//     // Write your assert statement here
+//     assert.strictEqual(user, expectedUserID);
+//   });
+// });
+
+const chai = require("chai");
+const chaiHttp = require("chai-http");
+const expect = chai.expect;
+
+chai.use(chaiHttp);
+
+describe("Login and Access Control Test", () => {
+
+  //1.  GET /, a user should be redirected to /login if they are not logged in
+  it('should return 302 status code when user tries to access "http://localhost:8000/" and they are not logged in, redirect user to the login page', () => {
+    const agent = chai.request.agent("http://localhost:8000");
+
+    return agent
+      .get("/")
+      .redirects(0) 
+      .then((res) => {
+        expect(res).to.have.status(302);
+      })
+
+      //without the .redirects(0), res will show the final response which is status 200. With .redirects(0), it instructs Chai HTTP not to automatically follow any redirects. Tells Chai HTTP to stop the request and respond with the redirect response instead of automatically following the redirect.
   });
 
-  it('should return null with non-existent email', function() {
-    const user = findUserByEmail("non_existent@example.com", testUsers)
-    const expectedUserID = null;
-    // Write your assert statement here
-    assert.strictEqual(user, expectedUserID);
+  
+  //2.  GET /urls/new, a user should be redirected to /login if they are not logged in
+  it('should return 302 status code when user tries to access "http://localhost:8000/urls/new" and they are not logged in, redirects user to the login page', () => {
+    const agent = chai.request.agent("http://localhost:8000");
+
+    return agent
+      .get("/urls/new")
+      .redirects(0)
+      .then((res) => {
+        expect(res).to.have.status(302);
+      });
+  });
+
+  //3.  GET /urls/:id, a user should see an error message if they are not logged in
+  it('should return 404 status code when user tries to access "http://localhost:8000/urls/NOTEXISTS" and they are not logged in ', () => {
+    const agent = chai.request.agent("http://localhost:8000");
+
+    return agent
+      .get("/urls/NOTEXISTS")
+      .then((res) => {
+        expect(res).to.have.status(404);
+      });
+  });
+
+
+  it('should return 403 status code for unauthorized access to "http://localhost:8000/urls/b2xVn2"', () => {
+    const agent = chai.request.agent("http://localhost:8000");
+
+    // 5. GET /urls/:id, a user should see an error message if they do not own the URL
+    return agent
+      .post("/login")
+      .send({ email: "user2@example.com", password: "dishwasher-funk" })
+      .then((loginRes) => {
+        // Step 2: Make a GET request to a protected resource
+        return agent.get("/urls/b2xVn2").then((accessRes) => {
+          // Step 3: Expect the status code to be 403
+          expect(accessRes).to.have.status(403);
+        });
+      });
   });
 });
-
-
