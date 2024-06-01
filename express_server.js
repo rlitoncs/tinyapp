@@ -64,6 +64,10 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 
+app.get("/", (req, res) => {
+  return res.redirect("/login")
+})
+
 app.get("/urls", (req, res) => {
 
   //get userID by accessing cookie
@@ -130,12 +134,12 @@ app.get("/urls/:id", (req, res) => {
 
   // User needs to login to access URLS
   if (!userID){
-    return res.status(401).send("401 Unauthorized. Please Login to access URLS")
+    return res.status(404).send("404 Not Found. Please Login to access URLS")
   }
 
   // users URLS can only access their own URLS
   if (!(getUserURLS[req.params.id])){
-    return res.status(400).send("400 Bad Request. You are trying to access a URL you do not yet own");
+    return res.status(403).send("403 Forbidden. You are trying to access a URL you do not yet own");
   }
 
   const templateVars = { 
