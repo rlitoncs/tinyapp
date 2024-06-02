@@ -14,6 +14,14 @@ const urlDatabase = {
     longURL: "https://www.google.ca",
     userID: "aJ48lW",
   },
+  aD80Ce: {
+    longURL: "https://www.youtube.com/",
+    userID: "userRandomID"
+  },
+  eP87Ce: {
+    longURL: "https://www.w3schools.com/",
+    userID: "user2RandomID"
+  }
 };
 
 
