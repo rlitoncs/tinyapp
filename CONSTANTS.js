@@ -16,7 +16,11 @@ const urlDatabase = {
     userID: "aJ48lW",
   },
   aD80Ce: {
-    longURL: "https://www.youtube.com/",
+    longURL: "https://www.github.com/",
+    userID: "userRandomID"
+  },
+  cLO7Ce: {
+    longURL: "https://www.bing.com/",
     userID: "userRandomID"
   },
   eP87Ce: {
