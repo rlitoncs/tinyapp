@@ -77,7 +77,6 @@ describe("Login and Access Control Test", () => {
       });
   });
 
-
   it('should return 403 status code for unauthorized access to "http://localhost:8000/urls/b2xVn2"', () => {
     const agent = chai.request.agent("http://localhost:8000");
 
@@ -93,4 +92,23 @@ describe("Login and Access Control Test", () => {
         });
       });
   });
+
+  it('should return 404 status code when user is logged in and tries to edit a URL it does not own, "http://localhost:8000/urls/abc"', () => {
+    const agent = chai.request.agent("http://localhost:8000");
+
+    // POST /urls/:id, a logged in user should see an error message if they do not own the URL
+    return agent
+      .post("/login")
+      .send({ email: "user2@example.com", password: "dishwasher-funk" })
+      .then((loginRes) => {
+        // Step 2: Make a POST request to a protected resource
+        return agent.post("/urls/abc").then((accessRes) => {
+          // Step 3: Expect the status code to be 404
+          expect(accessRes).to.have.status(404);
+        });
+      });
+  });
+
+
+
 });
