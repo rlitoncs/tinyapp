@@ -20,7 +20,6 @@ describe("Login and Access Control Test", () => {
     //without the .redirects(0), res will show the final response which is status 200. With .redirects(0), it instructs Chai HTTP not to automatically follow any redirects. Tells Chai HTTP to stop the request and respond with the redirect response instead of automatically following the redirect.
   });
 
-  
   //2.  GET /urls/new, a user should be redirected to /login if they are not logged in
   it('should return 302 status code when user tries to access "http://localhost:8000/urls/new" and they are not logged in, redirects user to the login page', () => {
     const agent = chai.request.agent("http://localhost:8000");
@@ -57,7 +56,6 @@ describe("Login and Access Control Test", () => {
         });
       });
   });
-
 
   // 5. GET /urls/:id, a user should see an error message if they do not own the URL
   it('should return 403 status code for unauthorized access to "http://localhost:8000/urls/b2xVn2"', () => {

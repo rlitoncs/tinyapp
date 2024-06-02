@@ -24,8 +24,7 @@ const urlsForUser = (id) => {
       userURLS[shortID] = urlDatabase[shortID];
     }
   }
-
-  console.log(userURLS);
+  
   return userURLS;
 };
 
