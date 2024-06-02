@@ -139,7 +139,7 @@ app.get("/urls/:id", (req, res) => {
 
   // users URLS can only access their own URLS
   if (!(getUserURLS[req.params.id])){
-    return res.status(403).send("403 Forbidden. You are trying to access a URL you do not yet own");
+    return res.status(403).send("403 Forbidden. Requested URL does not exist. You are trying to access a URL you do not yet own");
   }
 
   const templateVars = { 
@@ -156,7 +156,7 @@ app.post("/urls/:id", (req,res) => {
   //get userID by accessing cookie
   const userID = req.session.user_id;
   const getUserURLS = urlsForUser(userID);
-
+  console.log(userID);
   //Error Handling
   if (!userID){
     return res.status(401).send("401 Unauthorized to edit. Please Login")
@@ -164,7 +164,7 @@ app.post("/urls/:id", (req,res) => {
   
   // Error: editing a user's URL it doesn't own
   if (!(getUserURLS[req.params.id])){
-    return res.status(404).send(`404 Not Found. ${short_url_id} does not exist `)
+    return res.status(404).send(`404 Not Found. ${req.params.id} does not exist `)
   }
 
   getUserURLS[req.params.id].longURL = req.body.longURL;
