@@ -44,6 +44,24 @@ describe("Login and Access Control Test", () => {
       });
   });
 
+  //4.  GET /urls/:id, a user should see an error message if the URL doesn't exist
+  it('should return 403 status code when user tries to access "http://localhost:8000/urls/abc" and they are logged in ', () => {
+    const agent = chai.request.agent("http://localhost:8000");
+
+    return agent
+      .post("/login")
+      .send({ email: "a@example.com", password: "123" })
+      .then((loginRes) => {
+        // Step 2: Make a GET request to a protected resource
+        return agent.get("/urls/abc").then((accessRes) => {
+          // Step 3: Expect the status code to be 403
+          expect(accessRes).to.have.status(403);
+        });
+      });
+  });
+
+
+
   it('should return 403 status code for unauthorized access to "http://localhost:8000/urls/b2xVn2"', () => {
     const agent = chai.request.agent("http://localhost:8000");
 
