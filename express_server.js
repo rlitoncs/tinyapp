@@ -1,65 +1,10 @@
 const express = require("express");
 const cookieSession = require('cookie-session');
-const bcrypt = require('bcryptjs');
-const { findUserByEmail } = require('./helpers');
+const { generateRandomString, findUserByEmail, urlsForUser } = require('./helpers');
+const { urlDatabase, users } = require('./CONSTANTS');
 const app = express();
 const PORT = 8000;
 
-const urlDatabase = {
-  b6UTxQ: {
-    longURL: "https://www.tsn.ca",
-    userID: "aJ48lW",
-  },
-  i3BoGr: {
-    longURL: "https://www.google.ca",
-    userID: "aJ48lW",
-  },
-  aD80Ce: {
-    longURL: "https://www.youtube.com/",
-    userID: "userRandomID"
-  },
-  eP87Ce: {
-    longURL: "https://www.w3schools.com/",
-    userID: "user2RandomID"
-  }
-};
-
-
-const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: bcrypt.hashSync("purple-monkey-dinosaur", 10)
-  },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: bcrypt.hashSync("dishwasher-funk", 10)
-  },
-  aJ48lW: {
-    id: "aJ48lW",
-    email: "a@example.com",
-    password: bcrypt.hashSync("123", 10)
-  },
-};
-
-const urlsForUser = (id) => {
-  const userURLS = {};
-
-  for (let shortID in urlDatabase){
-    if (urlDatabase[shortID].userID === id){
-      userURLS[shortID] = urlDatabase[shortID];
-    }
-  }
-
-  console.log(userURLS);
-  return userURLS;
-}
-
-const generateRandomString = () => {
-  const random_short_url = Math.random().toString(36).slice(2, 8);
-  return random_short_url;
-}
 
 app.set("view engine", "ejs");
 
